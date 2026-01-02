@@ -1,0 +1,404 @@
+/* ============================================
+   PROFILE PAGE - Modern Design
+   ============================================ */
+
+.profile-container {
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.page-header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-dark);
+}
+
+.page-header .subtitle {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+}
+
+/* Profile Layout */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+@media (max-width: 1024px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Profile Main Column */
+.profile-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* Card Styles */
+.card {
+  background: var(--card-white);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.card-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.card-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.card-icon {
+  color: var(--primary-azure);
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+}
+
+.edit-btn.editing {
+  background: var(--destructive-red);
+  color: white;
+  border-color: var(--destructive-red);
+}
+
+.edit-btn.editing:hover {
+  background: #dc2626;
+}
+
+/* Form Styles */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-dark);
+}
+
+.field-label mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--primary-azure);
+}
+
+.form-input:disabled {
+  background: var(--bg-off-white);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: var(--destructive-red);
+  margin-top: -4px;
+}
+
+/* Quick Stats */
+.quick-stats {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid rgba(0, 114, 229, 0.1);
+}
+
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  min-width: 100px;
+}
+
+.stat-bmi {
+  background: rgba(0, 114, 229, 0.1);
+  color: var(--primary-azure);
+}
+
+.stat-calories {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning-amber);
+}
+
+.stat-protein {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--destructive-red);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-md);
+}
+
+.button-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* Goals Card */
+.goals-card {
+  margin-top: var(--spacing-xl);
+}
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.goal-card {
+  position: relative;
+  padding: var(--spacing-lg);
+  border: 2px solid rgba(0, 114, 229, 0.2);
+  border-radius: var(--radius-md);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  background: white;
+}
+
+.goal-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-azure);
+  box-shadow: var(--shadow-lg);
+}
+
+.goal-card.selected {
+  border-color: var(--primary-azure);
+  background: rgba(0, 114, 229, 0.05);
+}
+
+.goal-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--spacing-md);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 114, 229, 0.1);
+  transition: all var(--transition-base);
+}
+
+.goal-card.selected .goal-icon-wrapper {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.goal-icon-wrapper mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.goal-card h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-dark);
+}
+
+.goal-card p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.goal-card .checkmark {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  color: var(--success-green);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* Avatar Column */
+.avatar-column {
+  position: sticky;
+  top: 80px;
+  height: fit-content;
+}
+
+.avatar-card {
+  text-align: center;
+}
+
+.avatar-circle {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--spacing-lg);
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.avatar-initials {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+}
+
+.avatar-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-dark);
+}
+
+.user-age {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success-green);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-xl);
+}
+
+.active-badge mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.avatar-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  text-align: left;
+}
+
+.avatar-stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-off-white);
+  border-radius: var(--radius-sm);
+}
+
+.avatar-stat-item mat-icon {
+  color: var(--primary-azure);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.avatar-stat-item div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label-small {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.stat-value-small {
+  font-size: 0.875rem;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--spacing-lg);
+  color: var(--text-muted);
+}

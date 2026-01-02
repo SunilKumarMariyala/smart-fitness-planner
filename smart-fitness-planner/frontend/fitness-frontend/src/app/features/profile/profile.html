@@ -1,0 +1,247 @@
+<div class="profile-container page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Profile & Goals</h1>
+    <p class="subtitle">Manage your personal information and fitness goals</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading profile...</p>
+    </div>
+  } @else {
+    <div class="profile-layout">
+      <!-- Left Column: Personal Information & Goals -->
+      <div class="profile-main">
+        <!-- Personal Information Card -->
+        <div class="card profile-card">
+          <div class="card-header-section">
+            <div class="card-title-wrapper">
+              <mat-icon class="card-icon">person</mat-icon>
+              <h3>Personal Information</h3>
+            </div>
+            <button 
+              class="btn btn-outline edit-btn"
+              (click)="toggleEditMode()"
+              [class.editing]="isEditing">
+              <mat-icon>{{ isEditing ? 'close' : 'edit' }}</mat-icon>
+              <span>{{ isEditing ? 'Cancel' : 'Edit' }}</span>
+            </button>
+          </div>
+
+          <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+            <div class="form-grid">
+              <!-- Name -->
+              <div class="form-field">
+                <label class="field-label">
+                  <mat-icon>person</mat-icon>
+                  <span>Full Name</span>
+                </label>
+                <input 
+                  type="text" 
+                  class="form-input"
+                  formControlName="name" 
+                  placeholder="Enter your name" />
+                @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+                  <span class="field-error">Name is required</span>
+                }
+              </div>
+
+              <!-- Age -->
+              <div class="form-field">
+                <label class="field-label">
+                  <mat-icon>calendar_today</mat-icon>
+                  <span>Age</span>
+                </label>
+                <input 
+                  type="number" 
+                  class="form-input"
+                  formControlName="age" 
+                  placeholder="Age" />
+                @if (profileForm.get('age')?.invalid && profileForm.get('age')?.touched) {
+                  <span class="field-error">Enter a valid age (10-100)</span>
+                }
+              </div>
+
+              <!-- Gender -->
+              <div class="form-field">
+                <label class="field-label">
+                  <mat-icon>wc</mat-icon>
+                  <span>Gender</span>
+                </label>
+                <select 
+                  class="form-input"
+                  formControlName="gender">
+                  <option value="">Prefer not to say</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <!-- Height -->
+              <div class="form-field">
+                <label class="field-label">
+                  <mat-icon>straighten</mat-icon>
+                  <span>Height (cm)</span>
+                </label>
+                <input 
+                  type="number" 
+                  class="form-input"
+                  formControlName="height" 
+                  placeholder="Height in cm" />
+                @if (profileForm.get('height')?.invalid && profileForm.get('height')?.touched) {
+                  <span class="field-error">Enter a valid height (50-250 cm)</span>
+                }
+              </div>
+
+              <!-- Weight -->
+              <div class="form-field">
+                <label class="field-label">
+                  <mat-icon>monitor_weight</mat-icon>
+                  <span>Weight (kg)</span>
+                </label>
+                <input 
+                  type="number" 
+                  class="form-input"
+                  formControlName="weight" 
+                  placeholder="Weight in kg" />
+                @if (profileForm.get('weight')?.invalid && profileForm.get('weight')?.touched) {
+                  <span class="field-error">Enter a valid weight (20-300 kg)</span>
+                }
+              </div>
+            </div>
+
+            <!-- Quick Stats -->
+            @if (currentUser) {
+              <div class="quick-stats">
+                <div class="stat-pill stat-bmi">
+                  <span class="stat-label">BMI</span>
+                  <span class="stat-value">{{ calculateBMI() }}</span>
+                </div>
+                <div class="stat-pill stat-calories">
+                  <span class="stat-label">Daily Calories</span>
+                  <span class="stat-value">{{ calculateDailyCalories() }}</span>
+                </div>
+                <div class="stat-pill stat-protein">
+                  <span class="stat-label">Protein Target</span>
+                  <span class="stat-value">{{ calculateProteinTarget() }}g</span>
+                </div>
+              </div>
+            }
+
+            @if (isEditing || !currentUser) {
+              <div class="form-actions">
+                <button 
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="isSaving || profileForm.invalid">
+                  @if (isSaving) {
+                    <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                    <span>Saving...</span>
+                  } @else {
+                    <span>{{ currentUser ? 'Save Changes' : 'Create Profile' }}</span>
+                  }
+                </button>
+              </div>
+            }
+          </form>
+        </div>
+
+        <!-- Fitness Goal Selection Card -->
+        <div class="card goals-card">
+          <div class="card-title-wrapper">
+            <mat-icon class="card-icon">track_changes</mat-icon>
+            <h3>Fitness Goal</h3>
+          </div>
+
+          <div class="goals-grid">
+            <div 
+              class="goal-card"
+              [class.selected]="profileForm.get('goal')?.value === 'weight_loss'"
+              (click)="selectGoal('weight_loss')">
+              <div class="goal-icon-wrapper">
+                <mat-icon>trending_down</mat-icon>
+              </div>
+              <h4>Weight Loss</h4>
+              <p>Burn fat and get lean</p>
+              @if (profileForm.get('goal')?.value === 'weight_loss') {
+                <mat-icon class="checkmark">check_circle</mat-icon>
+              }
+            </div>
+
+            <div 
+              class="goal-card"
+              [class.selected]="profileForm.get('goal')?.value === 'muscle_gain'"
+              (click)="selectGoal('muscle_gain')">
+              <div class="goal-icon-wrapper">
+                <mat-icon>fitness_center</mat-icon>
+              </div>
+              <h4>Muscle Gain</h4>
+              <p>Build strength and mass</p>
+              @if (profileForm.get('goal')?.value === 'muscle_gain') {
+                <mat-icon class="checkmark">check_circle</mat-icon>
+              }
+            </div>
+
+            <div 
+              class="goal-card"
+              [class.selected]="profileForm.get('goal')?.value === 'maintenance'"
+              (click)="selectGoal('maintenance')">
+              <div class="goal-icon-wrapper">
+                <mat-icon>directions_run</mat-icon>
+              </div>
+              <h4>Maintenance</h4>
+              <p>Stay fit and healthy</p>
+              @if (profileForm.get('goal')?.value === 'maintenance') {
+                <mat-icon class="checkmark">check_circle</mat-icon>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Avatar Card -->
+      @if (currentUser) {
+        <div class="avatar-column">
+          <div class="card avatar-card">
+            <div class="avatar-circle">
+              <span class="avatar-initials">{{ getInitials() }}</span>
+            </div>
+            <h3>{{ currentUser.name }}</h3>
+            <p class="user-age">{{ currentUser.age }} years old</p>
+            <div class="active-badge">
+              <mat-icon>verified</mat-icon>
+              <span>Active Member</span>
+            </div>
+
+            <div class="avatar-stats">
+              <div class="avatar-stat-item">
+                <mat-icon>calendar_today</mat-icon>
+                <div>
+                  <span class="stat-label-small">Member Since</span>
+                  <span class="stat-value-small">{{ getMemberSince() }}</span>
+                </div>
+              </div>
+              <div class="avatar-stat-item">
+                <mat-icon>fitness_center</mat-icon>
+                <div>
+                  <span class="stat-label-small">Workouts</span>
+                  <span class="stat-value-small">0 Completed</span>
+                </div>
+              </div>
+              <div class="avatar-stat-item">
+                <mat-icon>local_fire_department</mat-icon>
+                <div>
+                  <span class="stat-label-small">Current Streak</span>
+                  <span class="stat-value-small">0 Days</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,78 @@
+<!-- Glassmorphism Navigation -->
+<nav class="navbar glass" [class.mobile-menu-open]="mobileMenuOpen()">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <a routerLink="/dashboard" class="logo">
+      <div class="logo-icon">
+        <mat-icon>bolt</mat-icon>
+      </div>
+      <span class="logo-text">
+        Fit<span class="logo-gradient">Flow</span>
+      </span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    @if (!isMobile()) {
+      <div class="nav-links">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+          <mat-icon>dashboard</mat-icon>
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/workouts" routerLinkActive="active" class="nav-link">
+          <mat-icon>fitness_center</mat-icon>
+          <span>Workouts</span>
+        </a>
+        <a routerLink="/meals" routerLinkActive="active" class="nav-link">
+          <mat-icon>restaurant</mat-icon>
+          <span>Meal Plan</span>
+        </a>
+        <a routerLink="/progress" routerLinkActive="active" class="nav-link">
+          <mat-icon>bar_chart</mat-icon>
+          <span>Progress</span>
+        </a>
+        <a routerLink="/profile" routerLinkActive="active" class="nav-link">
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+        </a>
+      </div>
+    }
+
+    <!-- Mobile Menu Button -->
+    @if (isMobile()) {
+      <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [attr.aria-label]="mobileMenuOpen() ? 'Close menu' : 'Open menu'">
+        <mat-icon>{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+      </button>
+    }
+  </div>
+
+  <!-- Mobile Menu Dropdown -->
+  @if (isMobile() && mobileMenuOpen()) {
+    <div class="mobile-menu">
+      <a routerLink="/dashboard" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/workouts" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <mat-icon>fitness_center</mat-icon>
+        <span>Workouts</span>
+      </a>
+      <a routerLink="/meals" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <mat-icon>restaurant</mat-icon>
+        <span>Meal Plan</span>
+      </a>
+      <a routerLink="/progress" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <mat-icon>bar_chart</mat-icon>
+        <span>Progress</span>
+      </a>
+      <a routerLink="/profile" routerLinkActive="active" class="mobile-nav-link" (click)="closeMobileMenu()">
+        <mat-icon>person</mat-icon>
+        <span>Profile</span>
+      </a>
+    </div>
+  }
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>

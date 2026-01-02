@@ -1,0 +1,376 @@
+<div class="meals-container page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Meal Planner</h1>
+    <p class="subtitle">Your personalized daily nutrition tracking with macro breakdown</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading meal plans...</p>
+    </div>
+  } @else if (weeklyPlans.length === 0) {
+    <div class="card empty-state">
+      <mat-icon class="empty-icon">restaurant</mat-icon>
+      <h3>No Meal Plan Yet</h3>
+      <p>Generate your personalized weekly meal plan based on your fitness goals.</p>
+      <button 
+        class="btn btn-primary"
+        (click)="generateWeeklyPlan()"
+        [disabled]="isGenerating || !currentUser">
+        @if (isGenerating) {
+          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+          <span>Generating...</span>
+        } @else {
+          <mat-icon>refresh</mat-icon>
+          <span>Generate Weekly Plan</span>
+        }
+      </button>
+    </div>
+  } @else {
+    <!-- Week Navigation -->
+    <div class="card week-navigation">
+      <div class="week-nav-header">
+        <button class="nav-arrow" (click)="previousWeek()" [disabled]="selectedTabIndex === 0">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <div class="day-buttons">
+          @for (day of days; track day; let i = $index) {
+            <button 
+              class="day-button"
+              [class.selected]="selectedTabIndex === i"
+              [class.completed]="isDayCompleted(day)"
+              (click)="selectDay(i)">
+              @if (isDayCompleted(day)) {
+                <mat-icon class="check-icon">check_circle</mat-icon>
+              } @else {
+                <span class="day-number">{{ i + 1 }}</span>
+              }
+              <span class="day-name">{{ getDayShortName(day) }}</span>
+            </button>
+          }
+        </div>
+        <button class="nav-arrow" (click)="nextWeek()" [disabled]="selectedTabIndex === days.length - 1">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content: 2 Columns -->
+    <div class="meals-layout">
+      <!-- Left Column: Daily Meals -->
+      <div class="meals-main">
+        @if (getDayPlan(getCurrentDay())) {
+          @let plan = getDayPlan(getCurrentDay())!;
+          
+          <div class="card daily-meals-card">
+            <div class="card-title-wrapper">
+              <mat-icon class="card-icon">restaurant_menu</mat-icon>
+              <h3>Daily Meals</h3>
+            </div>
+
+            <div class="meals-list">
+              <!-- Breakfast -->
+              <div class="meal-entry" [class.completed]="isMealCompleted(plan, 'breakfast')">
+                <mat-checkbox
+                  [checked]="isMealCompleted(plan, 'breakfast')"
+                  (change)="toggleMeal(plan, 'breakfast')"
+                  color="primary"
+                  class="meal-checkbox">
+                </mat-checkbox>
+                <div class="meal-icon-wrapper">
+                  <mat-icon>coffee</mat-icon>
+                </div>
+                <div class="meal-content">
+                  <div class="meal-header-row">
+                    <div class="meal-badge-time">
+                      <span class="meal-badge">Breakfast</span>
+                      <span class="meal-time">8:00 AM</span>
+                    </div>
+                  </div>
+                  <h4 class="meal-name" [class.strikethrough]="isMealCompleted(plan, 'breakfast')">
+                    {{ plan.meals.breakfast.name }}
+                  </h4>
+                  <div class="macro-row">
+                    <span class="macro-item calories">
+                      <mat-icon>local_fire_department</mat-icon>
+                      {{ plan.meals.breakfast.calories }} kcal
+                    </span>
+                    <span class="macro-item protein">
+                      <mat-icon>restaurant</mat-icon>
+                      {{ estimateProtein(plan.meals.breakfast.calories) }}g
+                    </span>
+                    <span class="macro-item carbs">
+                      <mat-icon>grain</mat-icon>
+                      {{ estimateCarbs(plan.meals.breakfast.calories) }}g
+                    </span>
+                    <span class="macro-item fat">
+                      <mat-icon>water_drop</mat-icon>
+                      {{ estimateFat(plan.meals.breakfast.calories) }}g
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lunch -->
+              <div class="meal-entry" [class.completed]="isMealCompleted(plan, 'lunch')">
+                <mat-checkbox
+                  [checked]="isMealCompleted(plan, 'lunch')"
+                  (change)="toggleMeal(plan, 'lunch')"
+                  color="primary"
+                  class="meal-checkbox">
+                </mat-checkbox>
+                <div class="meal-icon-wrapper">
+                  <mat-icon>wb_sunny</mat-icon>
+                </div>
+                <div class="meal-content">
+                  <div class="meal-header-row">
+                    <div class="meal-badge-time">
+                      <span class="meal-badge">Lunch</span>
+                      <span class="meal-time">12:30 PM</span>
+                    </div>
+                  </div>
+                  <h4 class="meal-name" [class.strikethrough]="isMealCompleted(plan, 'lunch')">
+                    {{ plan.meals.lunch.name }}
+                  </h4>
+                  <div class="macro-row">
+                    <span class="macro-item calories">
+                      <mat-icon>local_fire_department</mat-icon>
+                      {{ plan.meals.lunch.calories }} kcal
+                    </span>
+                    <span class="macro-item protein">
+                      <mat-icon>restaurant</mat-icon>
+                      {{ estimateProtein(plan.meals.lunch.calories) }}g
+                    </span>
+                    <span class="macro-item carbs">
+                      <mat-icon>grain</mat-icon>
+                      {{ estimateCarbs(plan.meals.lunch.calories) }}g
+                    </span>
+                    <span class="macro-item fat">
+                      <mat-icon>water_drop</mat-icon>
+                      {{ estimateFat(plan.meals.lunch.calories) }}g
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dinner -->
+              <div class="meal-entry" [class.completed]="isMealCompleted(plan, 'dinner')">
+                <mat-checkbox
+                  [checked]="isMealCompleted(plan, 'dinner')"
+                  (change)="toggleMeal(plan, 'dinner')"
+                  color="primary"
+                  class="meal-checkbox">
+                </mat-checkbox>
+                <div class="meal-icon-wrapper">
+                  <mat-icon>nights_stay</mat-icon>
+                </div>
+                <div class="meal-content">
+                  <div class="meal-header-row">
+                    <div class="meal-badge-time">
+                      <span class="meal-badge">Dinner</span>
+                      <span class="meal-time">7:00 PM</span>
+                    </div>
+                  </div>
+                  <h4 class="meal-name" [class.strikethrough]="isMealCompleted(plan, 'dinner')">
+                    {{ plan.meals.dinner.name }}
+                  </h4>
+                  <div class="macro-row">
+                    <span class="macro-item calories">
+                      <mat-icon>local_fire_department</mat-icon>
+                      {{ plan.meals.dinner.calories }} kcal
+                    </span>
+                    <span class="macro-item protein">
+                      <mat-icon>restaurant</mat-icon>
+                      {{ estimateProtein(plan.meals.dinner.calories) }}g
+                    </span>
+                    <span class="macro-item carbs">
+                      <mat-icon>grain</mat-icon>
+                      {{ estimateCarbs(plan.meals.dinner.calories) }}g
+                    </span>
+                    <span class="macro-item fat">
+                      <mat-icon>water_drop</mat-icon>
+                      {{ estimateFat(plan.meals.dinner.calories) }}g
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Snacks -->
+              <div class="meal-entry" [class.completed]="isMealCompleted(plan, 'snacks')">
+                <mat-checkbox
+                  [checked]="isMealCompleted(plan, 'snacks')"
+                  (change)="toggleMeal(plan, 'snacks')"
+                  color="primary"
+                  class="meal-checkbox">
+                </mat-checkbox>
+                <div class="meal-icon-wrapper">
+                  <mat-icon>cookie</mat-icon>
+                </div>
+                <div class="meal-content">
+                  <div class="meal-header-row">
+                    <div class="meal-badge-time">
+                      <span class="meal-badge">Snacks</span>
+                      <span class="meal-time">3:00 PM</span>
+                    </div>
+                  </div>
+                  <h4 class="meal-name" [class.strikethrough]="isMealCompleted(plan, 'snacks')">
+                    @if (plan.meals.snacks && plan.meals.snacks.length > 0) {
+                      {{ getSnackNames(plan.meals.snacks) }}
+                    } @else {
+                      Healthy Snacks
+                    }
+                  </h4>
+                  <div class="macro-row">
+                    <span class="macro-item calories">
+                      <mat-icon>local_fire_department</mat-icon>
+                      {{ getTotalSnackCalories(plan.meals.snacks) }} kcal
+                    </span>
+                    <span class="macro-item protein">
+                      <mat-icon>restaurant</mat-icon>
+                      {{ estimateProtein(getTotalSnackCalories(plan.meals.snacks)) }}g
+                    </span>
+                    <span class="macro-item carbs">
+                      <mat-icon>grain</mat-icon>
+                      {{ estimateCarbs(getTotalSnackCalories(plan.meals.snacks)) }}g
+                    </span>
+                    <span class="macro-item fat">
+                      <mat-icon>water_drop</mat-icon>
+                      {{ estimateFat(getTotalSnackCalories(plan.meals.snacks)) }}g
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="card no-plan-card">
+            <mat-icon>info</mat-icon>
+            <p>No meal plan for {{ getCurrentDay() }}. Click "Regenerate Plan" to create one.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Right Column: Nutrition Tracker -->
+      <div class="nutrition-sidebar">
+        @if (getDayPlan(getCurrentDay())) {
+          @let plan = getDayPlan(getCurrentDay())!;
+          @let consumed = getConsumedCalories(plan);
+          @let target = getTargetCalories(plan);
+          
+          <!-- Nutrition Tracker Card -->
+          <div class="card nutrition-tracker-card">
+            <div class="card-title-wrapper">
+              <mat-icon class="card-icon">analytics</mat-icon>
+              <h3>Daily Nutrition</h3>
+            </div>
+
+            <div class="nutrition-bars">
+              <!-- Calories -->
+              <div class="nutrition-bar-item">
+                <div class="bar-header">
+                  <div class="bar-label">
+                    <mat-icon class="bar-icon calories">local_fire_department</mat-icon>
+                    <span>Calories</span>
+                  </div>
+                  <span class="bar-value">{{ consumed }} / {{ target }}</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="(consumed / target) * 100"
+                  [color]="(consumed / target) > 1.1 ? 'warn' : 'primary'">
+                </mat-progress-bar>
+              </div>
+
+              <!-- Protein -->
+              <div class="nutrition-bar-item">
+                <div class="bar-header">
+                  <div class="bar-label">
+                    <mat-icon class="bar-icon protein">restaurant</mat-icon>
+                    <span>Protein</span>
+                  </div>
+                  <span class="bar-value">{{ getConsumedProtein(plan) }}g / {{ getTargetProtein() }}g</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="(getConsumedProtein(plan) / getTargetProtein()) * 100"
+                  color="warn">
+                </mat-progress-bar>
+              </div>
+
+              <!-- Carbs -->
+              <div class="nutrition-bar-item">
+                <div class="bar-header">
+                  <div class="bar-label">
+                    <mat-icon class="bar-icon carbs">grain</mat-icon>
+                    <span>Carbs</span>
+                  </div>
+                  <span class="bar-value">{{ getConsumedCarbs(plan) }}g / {{ getTargetCarbs() }}g</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="(getConsumedCarbs(plan) / getTargetCarbs()) * 100"
+                  color="accent">
+                </mat-progress-bar>
+              </div>
+
+              <!-- Fat -->
+              <div class="nutrition-bar-item">
+                <div class="bar-header">
+                  <div class="bar-label">
+                    <mat-icon class="bar-icon fat">water_drop</mat-icon>
+                    <span>Fat</span>
+                  </div>
+                  <span class="bar-value">{{ getConsumedFat(plan) }}g / {{ getTargetFat() }}g</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="(getConsumedFat(plan) / getTargetFat()) * 100"
+                  color="primary">
+                </mat-progress-bar>
+              </div>
+            </div>
+          </div>
+
+          <!-- Remaining Today Card -->
+          <div class="card remaining-card">
+            <h3>Remaining Today</h3>
+            <div class="remaining-grid">
+              <div class="remaining-item calories">
+                <span class="remaining-label">Calories</span>
+                <span class="remaining-value">{{ Math.max(0, target - consumed) }}</span>
+              </div>
+              <div class="remaining-item protein">
+                <span class="remaining-label">Protein</span>
+                <span class="remaining-value">{{ Math.max(0, getTargetProtein() - getConsumedProtein(plan)) }}g</span>
+              </div>
+              <div class="remaining-item carbs">
+                <span class="remaining-label">Carbs</span>
+                <span class="remaining-value">{{ Math.max(0, getTargetCarbs() - getConsumedCarbs(plan)) }}g</span>
+              </div>
+              <div class="remaining-item fat">
+                <span class="remaining-label">Fat</span>
+                <span class="remaining-value">{{ Math.max(0, getTargetFat() - getConsumedFat(plan)) }}g</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Regenerate Button -->
+        <button 
+          class="btn btn-outline regenerate-btn"
+          (click)="generateWeeklyPlan()"
+          [disabled]="isGenerating">
+          @if (isGenerating) {
+            <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+            <span>Regenerating...</span>
+          } @else {
+            <mat-icon>refresh</mat-icon>
+            <span>Regenerate Plan</span>
+          }
+        </button>
+      </div>
+    </div>
+  }
+</div>

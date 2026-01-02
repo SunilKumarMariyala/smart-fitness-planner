@@ -1,0 +1,557 @@
+/* ============================================
+   PROGRESS PAGE - Modern Design
+   ============================================ */
+
+.progress-container {
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.page-header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-dark);
+}
+
+.page-header .subtitle {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+}
+
+/* Stats Overview */
+.stats-overview {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.stat-card {
+  position: relative;
+  padding: var(--spacing-xl);
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-watermark {
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.stat-watermark mat-icon {
+  font-size: 120px;
+  width: 120px;
+  height: 120px;
+}
+
+.stat-content {
+  position: relative;
+  z-index: 1;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: var(--spacing-xs) 0;
+  line-height: 1.2;
+}
+
+.stat-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Stat Card Variants */
+.weight-card {
+  background: var(--card-white);
+}
+
+.weight-card .stat-watermark mat-icon {
+  color: var(--success-green);
+}
+
+.workouts-card {
+  background: var(--card-white);
+}
+
+.workouts-card .stat-watermark mat-icon {
+  color: var(--primary-azure);
+}
+
+.completion-card {
+  background: var(--card-white);
+}
+
+.completion-card .stat-watermark mat-icon {
+  color: var(--accent-teal);
+}
+
+.streak-card {
+  background: var(--card-white);
+}
+
+.streak-card .stat-watermark mat-icon {
+  color: var(--warning-amber);
+}
+
+/* Charts Row */
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+@media (max-width: 1024px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card {
+  padding: var(--spacing-xl);
+}
+
+.chart-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-dark);
+}
+
+.chart-container {
+  padding: var(--spacing-lg);
+  background: var(--bg-off-white);
+  border-radius: var(--radius-sm);
+  min-height: 300px;
+}
+
+.chart-svg {
+  width: 100%;
+  height: 200px;
+  margin-bottom: var(--spacing-md);
+}
+
+.chart-legend {
+  display: flex;
+  gap: var(--spacing-lg);
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: var(--spacing-md);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+/* Bar Chart */
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: var(--spacing-sm);
+  height: 200px;
+  margin-bottom: var(--spacing-md);
+}
+
+.bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  max-width: 80px;
+}
+
+.bar-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar-target {
+  position: absolute;
+  width: 100%;
+  background: rgba(0, 114, 229, 0.1);
+  border: 1px dashed rgba(0, 114, 229, 0.3);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.bar-completed {
+  width: 100%;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: height var(--transition-slow);
+  min-height: 4px;
+}
+
+.bar-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.bar-value {
+  font-size: 0.75rem;
+  color: var(--primary-azure);
+  font-weight: 700;
+}
+
+/* Calorie Chart */
+.calorie-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: var(--spacing-sm);
+  height: 250px;
+  margin-bottom: var(--spacing-md);
+}
+
+.calorie-day {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  max-width: 100px;
+}
+
+.calorie-bars {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.calorie-bar {
+  flex: 1;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  position: relative;
+  transition: height var(--transition-slow);
+  min-height: 4px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.calorie-bar.target {
+  background: rgba(0, 114, 229, 0.2);
+  border: 1px dashed rgba(0, 114, 229, 0.4);
+}
+
+.calorie-bar.consumed {
+  background: var(--primary-azure);
+}
+
+.calorie-bar.burned {
+  background: var(--warning-amber);
+}
+
+.bar-label-small {
+  font-size: 0.625rem;
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.day-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.chart-card.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Calorie Chart Section */
+.calorie-chart-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+/* Daily Progress Section */
+.daily-progress-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.daily-progress-section h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-dark);
+}
+
+.progress-tabs {
+  margin-top: var(--spacing-lg);
+}
+
+.day-progress-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+}
+
+.progress-detail-card {
+  padding: var(--spacing-lg);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.progress-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.progress-title mat-icon {
+  color: var(--primary-azure);
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.progress-title h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.progress-details {
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.no-data-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.no-data-day mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--spacing-md);
+  opacity: 0.5;
+}
+
+/* Achievements Section */
+.achievements-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.achievements-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.trophy-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: var(--warning-amber);
+}
+
+.achievements-header h3 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.achievement-card {
+  padding: var(--spacing-xl);
+  text-align: center;
+  position: relative;
+  transition: all var(--transition-base);
+}
+
+.achievement-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.achievement-card.earned {
+  border: 2px solid var(--warning-amber);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.achievement-card.progress {
+  border: 2px solid rgba(0, 114, 229, 0.2);
+}
+
+.achievement-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--spacing-md);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 114, 229, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.achievement-icon.earned-icon {
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-lg);
+  transform: scale(1.1);
+}
+
+.achievement-icon mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--primary-azure);
+  transition: all var(--transition-base);
+}
+
+.achievement-icon.earned-icon mat-icon {
+  color: white;
+}
+
+.achievement-card h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-md);
+}
+
+.achievement-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.earned-badge {
+  background: var(--warning-amber);
+  color: white;
+}
+
+.achievement-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-md);
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-2xl);
+}
+
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: var(--text-muted);
+  opacity: 0.5;
+  margin-bottom: var(--spacing-lg);
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-dark);
+}
+
+.empty-state p {
+  color: var(--text-muted);
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--spacing-lg);
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+}

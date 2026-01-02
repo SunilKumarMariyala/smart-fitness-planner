@@ -1,0 +1,397 @@
+<div class="progress-container page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Progress Tracker</h1>
+    <p class="subtitle">Track your fitness journey and celebrate your achievements</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading progress data...</p>
+    </div>
+  } @else if (!currentUser) {
+    <div class="card empty-state">
+      <mat-icon class="empty-icon">person_add</mat-icon>
+      <h3>No Profile Found</h3>
+      <p>Please create your profile first to track progress.</p>
+    </div>
+  } @else if (!weeklyStats || weeklyPlans.length === 0) {
+    <div class="card empty-state">
+      <mat-icon class="empty-icon">bar_chart</mat-icon>
+      <h3>No Progress Data</h3>
+      <p>Generate your workout and meal plans to start tracking progress.</p>
+    </div>
+  } @else {
+    <!-- Stats Overview -->
+    <section class="stats-overview">
+      <div class="stats-grid">
+        <div class="card stat-card weight-card">
+          <div class="stat-watermark">
+            <mat-icon>trending_down</mat-icon>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Weight Lost</p>
+            <h2 class="stat-value">{{ calculateWeightLost() }} kg</h2>
+            <p class="stat-subtitle">Since starting</p>
+          </div>
+        </div>
+
+        <div class="card stat-card workouts-card">
+          <div class="stat-watermark">
+            <mat-icon>fitness_center</mat-icon>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Workouts Done</p>
+            <h2 class="stat-value">{{ getTotalWorkoutsCompleted() }}</h2>
+            <p class="stat-subtitle">Total completed</p>
+          </div>
+        </div>
+
+        <div class="card stat-card completion-card">
+          <div class="stat-watermark">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Average Completion</p>
+            <h2 class="stat-value">{{ getAverageCompletion() }}%</h2>
+            <p class="stat-subtitle">Weekly average</p>
+          </div>
+        </div>
+
+        <div class="card stat-card streak-card">
+          <div class="stat-watermark">
+            <mat-icon>local_fire_department</mat-icon>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Current Streak</p>
+            <h2 class="stat-value">{{ getCurrentStreak() }} days</h2>
+            <p class="stat-subtitle">Keep it up!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Row -->
+    <section class="charts-row">
+      <!-- Weight Progress Chart -->
+      <div class="card chart-card">
+        <h3>Weight Progress</h3>
+        <div class="chart-container">
+          <svg class="chart-svg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="weightGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:rgba(34, 197, 94, 0.3);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgba(34, 197, 94, 0);stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <!-- Grid lines (horizontal) -->
+            @for (i of [0, 1, 2, 3, 4]; track i) {
+              <line 
+                x1="50" 
+                [attr.y1]="20 + (i * 37.5)" 
+                x2="400" 
+                [attr.y2]="20 + (i * 37.5)" 
+                stroke="#e2e8f0" 
+                stroke-width="1" 
+                stroke-dasharray="2,2"/>
+            }
+            <!-- Area fill (only if data exists) -->
+            @if (getWeightChartData().length > 0) {
+              <path [attr.d]="getWeightAreaPath()" fill="url(#weightGradient)" />
+              <!-- Line -->
+              <path [attr.d]="getWeightLinePath()" fill="none" stroke="#22C55E" stroke-width="3" />
+              <!-- Points -->
+              @for (point of getWeightChartData(); track $index) {
+                <circle 
+                  [attr.cx]="point.x2" 
+                  [attr.cy]="point.y2" 
+                  r="4" 
+                  fill="#22C55E" 
+                  stroke="white" 
+                  stroke-width="2"/>
+              }
+            } @else {
+              <!-- Empty state message -->
+              <text x="200" y="100" font-size="14" fill="#94a3b8" text-anchor="middle">
+                No weight data available
+              </text>
+            }
+            <!-- Labels -->
+            @for (label of getWeightChartLabels(); track $index) {
+              <text 
+                [attr.x]="label.x" 
+                y="195" 
+                font-size="10" 
+                fill="#64748B" 
+                text-anchor="middle">{{ label.text }}</text>
+            }
+          </svg>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color" style="background: #22C55E;"></span>
+              <span>Weight (kg)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workout Completion Chart -->
+      <div class="card chart-card">
+        <h3>Workout Completion</h3>
+        <div class="chart-container">
+          <div class="bar-chart">
+            @for (day of days; track day; let i = $index) {
+              @let plan = getDayPlan(day);
+              @let completion = plan ? getDayWorkoutCompletion(plan) : 0;
+              <div class="bar-item">
+                <div class="bar-wrapper">
+                  <div class="bar-target" style="height: 100%;"></div>
+                  <div class="bar-completed" [style.height.%]="completion"></div>
+                </div>
+                <span class="bar-label">{{ getDayShortName(day) }}</span>
+                <span class="bar-value">{{ completion }}%</span>
+              </div>
+            }
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color" style="background: rgba(0, 114, 229, 0.3);"></span>
+              <span>Target</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background: #0072E5;"></span>
+              <span>Completed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Calorie Balance Chart -->
+    <section class="calorie-chart-section">
+      <div class="card chart-card full-width">
+        <h3>Calorie Balance (This Week)</h3>
+        <div class="chart-container">
+          <div class="calorie-chart">
+            @for (day of days; track day; let i = $index) {
+              @let plan = getDayPlan(day);
+              @let calories = plan ? getDayCalories(plan) : { consumed: 0, target: 0 };
+              @let burned = estimateCaloriesBurned(plan);
+              <div class="calorie-day">
+                <div class="calorie-bars">
+                  <div class="calorie-bar consumed" [style.height.%]="calories.target > 0 ? (calories.consumed / calories.target) * 100 : 0" 
+                       [title]="'Consumed: ' + calories.consumed + ' kcal'">
+                    <span class="bar-label-small">{{ calories.consumed }}</span>
+                  </div>
+                  <div class="calorie-bar burned" [style.height.%]="calories.target > 0 ? (burned / calories.target) * 100 : 0"
+                       [title]="'Burned: ' + burned + ' kcal'">
+                    <span class="bar-label-small">{{ burned }}</span>
+                  </div>
+                  <div class="calorie-bar target" [style.height.%]="100"
+                       [title]="'Target: ' + calories.target + ' kcal'">
+                  </div>
+                </div>
+                <span class="day-label">{{ getDayShortName(day) }}</span>
+              </div>
+            }
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color" style="background: rgba(0, 114, 229, 0.2);"></span>
+              <span>Target</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background: #0072E5;"></span>
+              <span>Consumed</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background: #F59E0B;"></span>
+              <span>Burned</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Daily Progress Breakdown -->
+    <section class="daily-progress-section">
+      <h3>Daily Progress Breakdown</h3>
+      <mat-tab-group class="progress-tabs">
+        @for (day of days; track day) {
+          <mat-tab [label]="getDayShortName(day)">
+            @if (getDayPlan(day)) {
+              @let plan = getDayPlan(day)!;
+              @let workoutCompletion = getDayWorkoutCompletion(plan);
+              @let mealCompletion = getDayMealCompletion(plan);
+              @let calories = getDayCalories(plan);
+              
+              <div class="day-progress-detail">
+                <!-- Workout Progress -->
+                <div class="card progress-detail-card">
+                  <div class="progress-header">
+                    <div class="progress-title">
+                      <mat-icon>fitness_center</mat-icon>
+                      <h4>Workout Progress</h4>
+                    </div>
+                    <mat-chip [color]="workoutCompletion === 100 ? 'primary' : 'accent'">
+                      {{ workoutCompletion }}%
+                    </mat-chip>
+                  </div>
+                  <div class="progress-details">
+                    <span>{{ (plan.completed_status?.exercises?.length) || 0 }} / {{ (plan.exercises && plan.exercises.length) || 0 }} exercises completed</span>
+                  </div>
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="workoutCompletion"
+                    color="primary">
+                  </mat-progress-bar>
+                </div>
+
+                <!-- Meal Progress -->
+                <div class="card progress-detail-card">
+                  <div class="progress-header">
+                    <div class="progress-title">
+                      <mat-icon>restaurant</mat-icon>
+                      <h4>Meal Progress</h4>
+                    </div>
+                    <mat-chip [color]="mealCompletion === 100 ? 'primary' : 'accent'">
+                      {{ mealCompletion }}%
+                    </mat-chip>
+                  </div>
+                  <div class="progress-details">
+                    <span>{{ (plan.completed_status?.meals?.length) || 0 }} / 4 meals completed</span>
+                  </div>
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="mealCompletion"
+                    color="accent">
+                  </mat-progress-bar>
+                </div>
+
+                <!-- Calorie Progress -->
+                <div class="card progress-detail-card">
+                  <div class="progress-header">
+                    <div class="progress-title">
+                      <mat-icon>local_fire_department</mat-icon>
+                      <h4>Calorie Intake</h4>
+                    </div>
+                    <mat-chip [color]="calories.target > 0 && (calories.consumed / calories.target) > 1.1 ? 'warn' : 'primary'">
+                      {{ calories.target > 0 ? ((calories.consumed / calories.target) * 100).toFixed(0) : 0 }}%
+                    </mat-chip>
+                  </div>
+                  <div class="progress-details">
+                    <span>{{ calories.consumed.toFixed(0) }} / {{ calories.target || 0 }} kcal</span>
+                  </div>
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="calories.target > 0 ? (calories.consumed / calories.target) * 100 : 0"
+                    [color]="calories.target > 0 && (calories.consumed / calories.target) > 1.1 ? 'warn' : 'primary'">
+                  </mat-progress-bar>
+                </div>
+              </div>
+            } @else {
+              <div class="no-data-day">
+                <mat-icon>info</mat-icon>
+                <p>No data available for {{ day }}</p>
+              </div>
+            }
+          </mat-tab>
+        }
+      </mat-tab-group>
+    </section>
+
+    <!-- Achievements Section -->
+    <section class="achievements-section">
+      <div class="achievements-header">
+        <mat-icon class="trophy-icon">emoji_events</mat-icon>
+        <h3>Achievements</h3>
+      </div>
+      <div class="achievements-grid">
+        <div class="card achievement-card" [class.earned]="isAchievementEarned('firstWeek')" [class.progress]="!isAchievementEarned('firstWeek')">
+          <div class="achievement-icon" [class.earned-icon]="isAchievementEarned('firstWeek')">
+            <mat-icon>{{ isAchievementEarned('firstWeek') ? 'check_circle' : 'calendar_today' }}</mat-icon>
+          </div>
+          <h4>First Week Complete</h4>
+          @if (isAchievementEarned('firstWeek')) {
+            <div class="achievement-badge earned-badge">
+              <span>Earned</span>
+            </div>
+          } @else {
+            <div class="achievement-progress">
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="getFirstWeekProgress()"
+                color="primary">
+              </mat-progress-bar>
+              <span class="progress-text">{{ getFirstWeekProgress() }}% progress</span>
+            </div>
+          }
+        </div>
+
+        <div class="card achievement-card" [class.earned]="isAchievementEarned('tenWorkouts')" [class.progress]="!isAchievementEarned('tenWorkouts')">
+          <div class="achievement-icon" [class.earned-icon]="isAchievementEarned('tenWorkouts')">
+            <mat-icon>{{ isAchievementEarned('tenWorkouts') ? 'check_circle' : 'fitness_center' }}</mat-icon>
+          </div>
+          <h4>10 Workouts Done</h4>
+          @if (isAchievementEarned('tenWorkouts')) {
+            <div class="achievement-badge earned-badge">
+              <span>Earned</span>
+            </div>
+          } @else {
+            <div class="achievement-progress">
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="getTenWorkoutsProgress()"
+                color="primary">
+              </mat-progress-bar>
+              <span class="progress-text">{{ getTenWorkoutsProgress() }}% progress</span>
+            </div>
+          }
+        </div>
+
+        <div class="card achievement-card" [class.earned]="isAchievementEarned('weightLoss')" [class.progress]="!isAchievementEarned('weightLoss')">
+          <div class="achievement-icon" [class.earned-icon]="isAchievementEarned('weightLoss')">
+            <mat-icon>{{ isAchievementEarned('weightLoss') ? 'check_circle' : 'trending_down' }}</mat-icon>
+          </div>
+          <h4>5kg Weight Loss</h4>
+          @if (isAchievementEarned('weightLoss')) {
+            <div class="achievement-badge earned-badge">
+              <span>Earned</span>
+            </div>
+          } @else {
+            <div class="achievement-progress">
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="getWeightLossProgress()"
+                color="primary">
+              </mat-progress-bar>
+              <span class="progress-text">{{ getWeightLossProgress() }}% progress</span>
+            </div>
+          }
+        </div>
+
+        <div class="card achievement-card" [class.earned]="isAchievementEarned('streak')" [class.progress]="!isAchievementEarned('streak')">
+          <div class="achievement-icon" [class.earned-icon]="isAchievementEarned('streak')">
+            <mat-icon>{{ isAchievementEarned('streak') ? 'check_circle' : 'local_fire_department' }}</mat-icon>
+          </div>
+          <h4>30-Day Streak</h4>
+          @if (isAchievementEarned('streak')) {
+            <div class="achievement-badge earned-badge">
+              <span>Earned</span>
+            </div>
+          } @else {
+            <div class="achievement-progress">
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="getStreakProgress()"
+                color="primary">
+              </mat-progress-bar>
+              <span class="progress-text">{{ getStreakProgress() }}% progress</span>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+</div>

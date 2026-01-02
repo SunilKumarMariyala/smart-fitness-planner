@@ -1,0 +1,210 @@
+<div class="workouts-container page-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Workout Routine</h1>
+    <p class="subtitle">Your personalized weekly workout plan</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading workout plans...</p>
+    </div>
+  } @else if (weeklyPlans.length === 0) {
+    <div class="card empty-state">
+      <mat-icon class="empty-icon">fitness_center</mat-icon>
+      <h3>No Workout Plan Yet</h3>
+      <p>Generate your personalized weekly workout plan based on your fitness goals.</p>
+      <button 
+        class="btn btn-primary"
+        (click)="generateWeeklyPlan()"
+        [disabled]="isGenerating || !currentUser">
+        @if (isGenerating) {
+          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+          <span>Generating...</span>
+        } @else {
+          <mat-icon>refresh</mat-icon>
+          <span>Generate Weekly Plan</span>
+        }
+      </button>
+    </div>
+  } @else {
+    <!-- Week Navigation -->
+    <div class="card week-navigation">
+      <div class="week-nav-header">
+        <button class="nav-arrow" (click)="previousWeek()" [disabled]="selectedTabIndex === 0">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <div class="day-buttons">
+          @for (day of days; track day; let i = $index) {
+            <button 
+              class="day-button"
+              [class.selected]="selectedTabIndex === i"
+              [class.completed]="isDayCompleted(day)"
+              (click)="selectDay(i)">
+              @if (isDayCompleted(day)) {
+                <mat-icon class="check-icon">check_circle</mat-icon>
+              } @else {
+                <span class="day-number">{{ i + 1 }}</span>
+              }
+              <span class="day-name">{{ getDayShortName(day) }}</span>
+            </button>
+          }
+        </div>
+        <button class="nav-arrow" (click)="nextWeek()" [disabled]="selectedTabIndex === days.length - 1">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content: 2 Columns -->
+    <div class="workout-layout">
+      <!-- Left Column: Workout Details -->
+      <div class="workout-main">
+        @if (getDayPlan(getCurrentDay())) {
+          @let plan = getDayPlan(getCurrentDay())!;
+          @let completion = getCompletionPercentage(plan);
+          
+          @if (plan.exercises && plan.exercises.length > 0) {
+            <div class="card workout-details-card">
+              <!-- Workout Header -->
+              <div class="workout-header">
+                <div>
+                  <div class="workout-badges">
+                    <span class="workout-type-badge">{{ getWorkoutType(plan) }}</span>
+                    <span class="duration-badge">
+                      <mat-icon>schedule</mat-icon>
+                      {{ estimateDuration(plan) }} min
+                    </span>
+                  </div>
+                  <h2 class="workout-title">{{ getWorkoutTitle(plan) }}</h2>
+                </div>
+                <button class="btn btn-primary start-btn">
+                  <mat-icon>play_arrow</mat-icon>
+                  <span>Start</span>
+                </button>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="workout-progress-section">
+                <div class="progress-info">
+                  <span>{{ (plan.completed_status?.exercises?.length) || 0 }} of {{ plan.exercises.length }} exercises completed</span>
+                  <span class="progress-percentage">{{ completion }}%</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="completion"
+                  color="primary">
+                </mat-progress-bar>
+              </div>
+
+              <!-- Exercise List -->
+              <div class="exercises-list">
+                @for (exercise of plan.exercises; track $index; let i = $index) {
+                  @let isCompleted = (plan.completed_status?.exercises?.includes(i)) || false;
+                  
+                  <div class="exercise-item" [class.completed]="isCompleted">
+                    <mat-checkbox
+                      [checked]="isCompleted"
+                      (change)="toggleExercise(plan, i)"
+                      color="primary"
+                      class="exercise-checkbox">
+                    </mat-checkbox>
+                    <div class="exercise-content">
+                      <div class="exercise-header-row">
+                        <h4 class="exercise-name" [class.strikethrough]="isCompleted">{{ exercise.name }}</h4>
+                        <span class="rest-time">
+                          <mat-icon>timer</mat-icon>
+                          60s rest
+                        </span>
+                      </div>
+                      <div class="exercise-details">
+                        <span class="sets-reps">{{ exercise.sets }} × {{ exercise.reps }}</span>
+                        @if (exercise.duration) {
+                          <span class="duration">@ {{ exercise.duration }} min</span>
+                        }
+                      </div>
+                      <p class="exercise-instructions">{{ exercise.instructions }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <!-- Rest Day -->
+            <div class="card rest-day-card">
+              <div class="rest-day-content">
+                <mat-icon class="rest-icon">fitness_center</mat-icon>
+                <h2>Rest Day</h2>
+                <p>Take a well-deserved break! Recovery is just as important as training.</p>
+                <p class="rest-message">Use this time to stretch, hydrate, and prepare for your next workout.</p>
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="card no-plan-card">
+            <mat-icon>info</mat-icon>
+            <p>No workout plan for {{ getCurrentDay() }}. Click "Regenerate Plan" to create one.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Right Column: Side Stats -->
+      <div class="workout-sidebar">
+        <!-- Weekly Summary Card -->
+        <div class="card sidebar-card">
+          <h3>Weekly Summary</h3>
+          <div class="sidebar-stats">
+            <div class="sidebar-stat-item">
+              <mat-icon>calendar_today</mat-icon>
+              <div>
+                <span class="stat-label">Workout Days</span>
+                <span class="stat-value">{{ getWorkoutDaysCount() }}</span>
+              </div>
+            </div>
+            <div class="sidebar-stat-item">
+              <mat-icon>schedule</mat-icon>
+              <div>
+                <span class="stat-label">Total Time</span>
+                <span class="stat-value">{{ getTotalTime() }} min</span>
+              </div>
+            </div>
+            <div class="sidebar-stat-item">
+              <mat-icon>local_fire_department</mat-icon>
+              <div>
+                <span class="stat-label">Est. Calories</span>
+                <span class="stat-value">{{ getEstimatedCalories() }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today's Burn Card -->
+        <div class="card sidebar-card burn-card">
+          <div class="burn-header">
+            <mat-icon>local_fire_department</mat-icon>
+            <h3>Today's Burn</h3>
+          </div>
+          <div class="burn-value">
+            <span class="burn-number">{{ getTodayCalories() }}</span>
+            <span class="burn-label">calories estimated</span>
+          </div>
+        </div>
+
+        <!-- Regenerate Button -->
+        <button 
+          class="btn btn-outline regenerate-btn"
+          (click)="generateWeeklyPlan()"
+          [disabled]="isGenerating">
+          @if (isGenerating) {
+            <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+            <span>Regenerating...</span>
+          } @else {
+            <mat-icon>refresh</mat-icon>
+            <span>Regenerate Plan</span>
+          }
+        </button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,290 @@
+<div class="dashboard-container">
+  <!-- Hero Section -->
+  @if (currentUser && !isLoading) {
+    <section class="hero-section">
+      <div class="hero-background"></div>
+      <div class="hero-content">
+        <div class="date-badge">{{ getCurrentDate() }}</div>
+        <h1 class="hero-title">{{ greeting }}, {{ currentUser.name }}!</h1>
+        <p class="hero-subtitle">You're on a {{ currentStreak }}-day streak. Keep up the amazing work! 🔥</p>
+        <div class="hero-actions">
+          <a routerLink="/workouts" class="btn btn-glass">
+            <mat-icon>bolt</mat-icon>
+            <span>Quick Start Workout</span>
+          </a>
+          <a routerLink="/profile" class="btn btn-glass">
+            <mat-icon>track_changes</mat-icon>
+            <span>Update Goals</span>
+          </a>
+        </div>
+      </div>
+      <svg class="wave-decoration" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,60 Q300,90 600,60 T1200,60 L1200,120 L0,120 Z" fill="var(--bg-off-white)"></path>
+      </svg>
+    </section>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading your dashboard...</p>
+    </div>
+  }
+
+  <!-- Main Content -->
+  @if (!isLoading) {
+    <div class="page-container">
+      <!-- Stats Grid -->
+      <section class="stats-grid">
+        @for (stat of stats; track stat.title) {
+          <div class="stat-card" [class]="'stat-' + stat.variant" class="animate-slide-up">
+            <div class="stat-icon-wrapper">
+              <mat-icon>{{ stat.icon }}</mat-icon>
+            </div>
+            <div class="stat-content">
+              <p class="stat-title">{{ stat.title }}</p>
+              <h3 class="stat-value">{{ stat.value }}</h3>
+              <div class="stat-footer">
+                <span class="stat-subtitle">{{ stat.subtitle }}</span>
+                @if (stat.trend) {
+                  <span class="stat-trend positive">{{ stat.trend }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- Today's Sections -->
+      <div class="today-sections">
+        <!-- Today's Workout -->
+        <section class="today-card">
+          <div class="card-header">
+            <div>
+              <h3>Today's Workout</h3>
+              @if (todayPlan) {
+                <span class="workout-badge">{{ getWorkoutType() }}</span>
+              }
+            </div>
+            <a routerLink="/workouts" class="view-all-link">View All →</a>
+          </div>
+
+          @if (todayPlan && todayPlan.exercises && todayPlan.exercises.length > 0) {
+            <div class="workout-progress">
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="getWorkoutCompletion()"
+                color="primary">
+              </mat-progress-bar>
+              <span class="progress-text">{{ getWorkoutCompletion() }}% Complete</span>
+            </div>
+
+            <div class="exercise-list">
+              @for (exercise of todayPlan.exercises.slice(0, 4); track $index; let i = $index) {
+                <div class="exercise-item" [class.completed]="isExerciseComplete(i)">
+                  <mat-checkbox 
+                    [checked]="isExerciseComplete(i)"
+                    (change)="toggleExerciseComplete(i)"
+                    color="primary">
+                  </mat-checkbox>
+                  <div class="exercise-info">
+                    <span class="exercise-name" [class.strikethrough]="isExerciseComplete(i)">
+                      {{ exercise.name }}
+                    </span>
+                    <span class="exercise-details">{{ exercise.sets }} × {{ exercise.reps }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <mat-icon>fitness_center</mat-icon>
+              <p>No workout planned for today. Generate a plan to get started!</p>
+            </div>
+          }
+        </section>
+
+        <!-- Today's Meals -->
+        <section class="today-card">
+          <div class="card-header">
+            <div>
+              <h3>Today's Nutrition</h3>
+              @if (todayMeals) {
+                <mat-chip class="calorie-chip">
+                  <mat-icon>local_fire_department</mat-icon>
+                  {{ getConsumedCalories() }} / {{ todayMeals.totalCalories }} kcal
+                </mat-chip>
+              }
+            </div>
+            <a routerLink="/meals" class="view-all-link">View All →</a>
+          </div>
+
+          @if (todayMeals) {
+            <div class="meal-list">
+              <div class="meal-item" [class.completed]="isMealComplete('breakfast')">
+                <mat-checkbox 
+                  [checked]="isMealComplete('breakfast')"
+                  (change)="toggleMealComplete('breakfast')"
+                  color="primary">
+                </mat-checkbox>
+                <mat-icon class="meal-icon">coffee</mat-icon>
+                <div class="meal-info">
+                  <span class="meal-name" [class.strikethrough]="isMealComplete('breakfast')">
+                    {{ todayMeals.breakfast.name }}
+                  </span>
+                  <span class="meal-calories">{{ todayMeals.breakfast.calories }} kcal</span>
+                </div>
+              </div>
+
+              <div class="meal-item" [class.completed]="isMealComplete('lunch')">
+                <mat-checkbox 
+                  [checked]="isMealComplete('lunch')"
+                  (change)="toggleMealComplete('lunch')"
+                  color="primary">
+                </mat-checkbox>
+                <mat-icon class="meal-icon">wb_sunny</mat-icon>
+                <div class="meal-info">
+                  <span class="meal-name" [class.strikethrough]="isMealComplete('lunch')">
+                    {{ todayMeals.lunch.name }}
+                  </span>
+                  <span class="meal-calories">{{ todayMeals.lunch.calories }} kcal</span>
+                </div>
+              </div>
+
+              <div class="meal-item" [class.completed]="isMealComplete('dinner')">
+                <mat-checkbox 
+                  [checked]="isMealComplete('dinner')"
+                  (change)="toggleMealComplete('dinner')"
+                  color="primary">
+                </mat-checkbox>
+                <mat-icon class="meal-icon">nights_stay</mat-icon>
+                <div class="meal-info">
+                  <span class="meal-name" [class.strikethrough]="isMealComplete('dinner')">
+                    {{ todayMeals.dinner.name }}
+                  </span>
+                  <span class="meal-calories">{{ todayMeals.dinner.calories }} kcal</span>
+                </div>
+              </div>
+
+              @if (todayMeals.snacks && todayMeals.snacks.length > 0) {
+                <div class="meal-item" [class.completed]="isMealComplete('snacks')">
+                  <mat-checkbox 
+                    [checked]="isMealComplete('snacks')"
+                    (change)="toggleMealComplete('snacks')"
+                    color="primary">
+                  </mat-checkbox>
+                  <mat-icon class="meal-icon">cookie</mat-icon>
+                  <div class="meal-info">
+                    <span class="meal-name" [class.strikethrough]="isMealComplete('snacks')">
+                      Snacks
+                    </span>
+                    <span class="meal-calories">{{ getSnackCalories() }} kcal</span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <mat-icon>restaurant</mat-icon>
+              <p>No meal plan for today. Generate a plan to get started!</p>
+            </div>
+          }
+        </section>
+      </div>
+
+      <!-- Weekly Progress Chart -->
+      <section class="weekly-chart-card">
+        <div class="chart-header-section">
+          <div class="chart-title-section">
+            <mat-icon class="chart-title-icon">show_chart</mat-icon>
+            <div>
+              <h3>Weekly Progress</h3>
+              <p class="chart-subtitle">Your workout completion rate this week</p>
+            </div>
+          </div>
+        </div>
+        <div class="weekly-chart-container">
+          <svg class="area-chart-svg" viewBox="0 0 1200 280" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:rgba(0, 114, 229, 0.3);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgba(0, 114, 229, 0);stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            
+            <!-- Grid lines (horizontal) for 0, 25, 50, 75, 100 -->
+            @for (i of [0, 1, 2, 3, 4]; track i) {
+              <line 
+                x1="80" 
+                [attr.y1]="50 + (i * 45)" 
+                x2="1120" 
+                [attr.y2]="50 + (i * 45)" 
+                stroke="#e2e8f0" 
+                stroke-width="1" 
+                stroke-dasharray="4,4"/>
+            }
+            
+            <!-- Grid lines (vertical) for each day -->
+            @for (i of [0, 1, 2, 3, 4, 5, 6]; track i) {
+              <line 
+                [attr.x1]="getGridLineX(i)" 
+                y1="50" 
+                [attr.x2]="getGridLineX(i)" 
+                y2="230" 
+                stroke="#e2e8f0" 
+                stroke-width="1"
+                stroke-dasharray="4,4"/>
+            }
+            
+            <!-- Y-axis labels (0, 25, 50, 75, 100) -->
+            @for (i of [0, 1, 2, 3, 4]; track i) {
+              <text 
+                x="75" 
+                [attr.y]="55 + (i * 45)" 
+                font-size="12" 
+                fill="#64748B" 
+                text-anchor="end" 
+                alignment-baseline="middle">{{ (4 - i) * 25 }}%</text>
+            }
+            
+            <!-- X-axis labels (Actual day names) -->
+            @for (i of [0, 1, 2, 3, 4, 5, 6]; track i) {
+              @let day = getDaysOfWeek()[i];
+              <text 
+                [attr.x]="getLabelX(i)" 
+                y="255" 
+                font-size="12" 
+                fill="#64748B" 
+                text-anchor="middle" 
+                font-weight="500">{{ day.short }}</text>
+            }
+            
+            <!-- Area fill -->
+            <path [attr.d]="getWeeklyAreaPath()" fill="url(#areaGradient)" />
+            
+            <!-- Smooth curved line -->
+            <path [attr.d]="getWeeklyCurvedLinePath()" fill="none" stroke="#0072E5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          
+          <!-- Summary Stats -->
+          <div class="chart-summary-stats">
+            <div class="summary-stat">
+              <span class="summary-value">{{ getAverageCompletion() }}%</span>
+              <span class="summary-label">Avg. Completion</span>
+            </div>
+            <div class="summary-stat">
+              <span class="summary-value weight-change">{{ getWeightChange() }}</span>
+              <span class="summary-label">Weight Change</span>
+            </div>
+            <div class="summary-stat">
+              <span class="summary-value">{{ getTotalWeeklyCalories() | number }}</span>
+              <span class="summary-label">Total Calories</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  }
+</div>
+
